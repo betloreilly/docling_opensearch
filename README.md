@@ -205,24 +205,6 @@ Use this flow for a live presentation (~10 minutes):
 | 4 | Parse **KYC Verification Form (Scanned)** | Docling OCR recovers text plain extractors miss |
 | 5 | Show **Chunks** tab | This is the search-ready knowledge layer OpenSearch indexes |
 | 6 | Search *"enhanced due diligence"* | Hybrid search finds relevant policy without exact keywords |
-| 7 | Close with business value | Faster policy access today; RAG-ready foundation tomorrow |
-
-### Sample documents
-
-| Document | Highlight |
-|----------|-----------|
-| NexValue AML & KYC Procedures.pdf | Core AML/KYC policy (default demo) |
-| Regulatory Retention Matrix.pdf | **Complex table** (merged headers) |
-| KYC Verification Form (Scanned).pdf | **OCR showcase** (image-only scanned page) |
-
-Upload your own PDFs or images anytime. Run `npm run samples` to regenerate the bundled samples.
-
-### Suggested search queries
-
-- "What documents are required for customer due diligence?"
-- "When is enhanced due diligence needed?"
-- "How long should customer data be retained?"
-- "What is the process for high-risk customers?"
 
 ## How Docling ingestion works
 
