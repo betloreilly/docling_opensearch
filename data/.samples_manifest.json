@@ -1,0 +1,16 @@
+{
+  "KYC Verification Form (Scanned).pdf": {
+    "tags": [
+      "ocr"
+    ],
+    "label": "OCR showcase",
+    "description": "Scanned PDF with an image-only page \u2014 Docling OCR + layout"
+  },
+  "Regulatory Retention Matrix.pdf": {
+    "tags": [
+      "complex-table"
+    ],
+    "label": "Complex table",
+    "description": "Merged headers and multi-segment retention grid"
+  }
+}

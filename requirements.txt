@@ -1,0 +1,11 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.12
+# SaaS-only Docling client (no local PDF parsing). Do NOT install the full `docling` package.
+docling-slim[service-client]>=2.0.0
+opensearch-py>=2.7.0
+sentence-transformers>=3.0.0
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+reportlab>=4.0.0
+pillow>=10.0.0
