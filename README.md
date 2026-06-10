@@ -95,7 +95,7 @@ By running this demo locally you will:
 |-------------|-------|
 | **Docker** | OpenSearch 3.5 + Dashboards via `docker compose` |
 | **Python 3.10+** | Backend, Docling client, local embeddings |
-| **Node.js 18+** | Next.js frontend |
+| **Node.js 18+** | Next.js frontend. `setup.sh` can install it with Homebrew on macOS if it is missing. |
 | **~4 GB RAM** | OpenSearch container + embedding model |
 | **Docling SaaS credentials** | `DOCLING_SERVICE_URL` + `DOCLING_API_KEY` (required for parsing) |
 
@@ -166,8 +166,12 @@ Run the setup script:
 ./setup.sh
 ```
 
+On macOS, if Node.js/npm is missing and Homebrew is installed, the script runs `brew install node`. If Homebrew is not installed, install Node.js LTS from [nodejs.org](https://nodejs.org/) and rerun the script.
+
 The script:
 
+- Checks Python, Node.js, and npm
+- Installs Node.js with Homebrew if Node/npm are missing on macOS
 - Creates `.env` from `.env.example` if it does not exist
 - Creates `frontend/.env.local` from `frontend/.env.local.example` if it does not exist
 - Creates the Python virtual environment at `.venv`

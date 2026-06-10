@@ -31,10 +31,11 @@ Options:
 
 This script:
   1. Checks required local tools
-  2. Creates .env and frontend/.env.local from examples if missing
-  3. Creates .venv and installs Python dependencies
-  4. Installs frontend dependencies
-  5. Generates sample PDFs
+  2. Installs Node.js with Homebrew if Node/npm are missing on macOS
+  3. Creates .env and frontend/.env.local from examples if missing
+  4. Creates .venv and installs Python dependencies
+  5. Installs frontend dependencies
+  6. Generates sample PDFs
 EOF
       exit 0
       ;;
@@ -58,10 +59,51 @@ need_cmd() {
   fi
 }
 
+install_node_with_brew() {
+  if command -v brew >/dev/null 2>&1; then
+    echo "Node.js/npm not found. Installing Node.js with Homebrew..."
+    brew install node
+    return
+  fi
+
+  cat >&2 <<'EOF'
+Missing Node.js/npm.
+
+Install Node.js 18 or newer, then rerun ./setup.sh.
+
+macOS with Homebrew:
+  brew install node
+
+macOS without Homebrew:
+  Install Node.js LTS from https://nodejs.org/
+
+Ubuntu/Debian example:
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+EOF
+  exit 1
+}
+
+ensure_node() {
+  if ! command -v node >/dev/null 2>&1 || ! command -v npm >/dev/null 2>&1; then
+    install_node_with_brew
+  fi
+
+  if ! node -e "const v=process.versions.node.split('.').map(Number); process.exit(v[0] >= 18 ? 0 : 1);"; then
+    echo "Node.js 18 or newer is required. Current: $(node --version)" >&2
+    if command -v brew >/dev/null 2>&1; then
+      echo "Upgrading Node.js with Homebrew..."
+      brew upgrade node || brew install node
+    else
+      echo "Please install Node.js 18 or newer from https://nodejs.org/ and rerun ./setup.sh." >&2
+      exit 1
+    fi
+  fi
+}
+
 log "Checking required tools"
 need_cmd python3
-need_cmd node
-need_cmd npm
+ensure_node
 
 python3 - <<'PY'
 import sys
@@ -70,7 +112,8 @@ if sys.version_info < (3, 10):
 print(f"Python OK: {sys.version.split()[0]}")
 PY
 
-node -e "const v=process.versions.node.split('.').map(Number); if (v[0] < 18) { console.error('Node.js 18 or newer is required. Current: ' + process.version); process.exit(1); } console.log('Node OK: ' + process.version);"
+node -e "console.log('Node OK: ' + process.version);"
+npm --version >/dev/null
 
 log "Preparing local environment files"
 if [[ ! -f .env ]]; then
