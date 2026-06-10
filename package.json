@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "setup": "bash setup.sh",
-    "opensearch:up": "docker compose up -d",
-    "opensearch:down": "docker compose down",
+    "opensearch:up": "bash setup.sh --opensearch-only",
+    "opensearch:down": "bash setup.sh --stop-opensearch",
     "backend": "PYTHONPATH=. .venv/bin/uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000",
     "frontend": "cd frontend && npm run dev",
     "dev": "echo 'Run npm run opensearch:up, then npm run backend and npm run frontend in separate terminals'",

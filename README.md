@@ -93,7 +93,7 @@ By running this demo locally you will:
 
 | Requirement | Notes |
 |-------------|-------|
-| **Docker** | OpenSearch 3.5 + Dashboards via `docker compose` |
+| **Container runtime** | Required for OpenSearch 3.5 + Dashboards. Use Docker Desktop, Rancher Desktop, Podman, Colima, or another Docker Compose compatible runtime. |
 | **Python 3.10+** | Backend, Docling client, local embeddings |
 | **Node.js 18+** | Next.js frontend. `setup.sh` can install it with Homebrew on macOS if it is missing. |
 | **~4 GB RAM** | OpenSearch container + embedding model |
@@ -168,10 +168,18 @@ Run the setup script:
 
 On macOS, if Node.js/npm is missing and Homebrew is installed, the script runs `brew install node`. If Homebrew is not installed, install Node.js LTS from [nodejs.org](https://nodejs.org/) and rerun the script.
 
+For OpenSearch, install one Docker Compose compatible runtime first:
+
+- **Docker Desktop**
+- **Rancher Desktop** with Docker-compatible mode enabled
+- **Podman Desktop** with `podman compose` or `podman-compose`
+- **Colima** with Docker CLI support
+
 The script:
 
 - Checks Python, Node.js, and npm
 - Installs Node.js with Homebrew if Node/npm are missing on macOS
+- Uses Docker/Rancher/Podman/Colima compatible Compose commands for OpenSearch
 - Creates `.env` from `.env.example` if it does not exist
 - Creates `frontend/.env.local` from `frontend/.env.local.example` if it does not exist
 - Creates the Python virtual environment at `.venv`
@@ -236,6 +244,13 @@ This uses `.venv/bin/python`, so run `./setup.sh` or `npm run setup` first.
 ```bash
 npm run opensearch:up
 ```
+
+This command uses the first available Compose-compatible runtime:
+
+1. `docker compose`
+2. `docker-compose`
+3. `podman compose`
+4. `podman-compose`
 
 | Service | URL | Login |
 |---------|-----|-------|
@@ -365,6 +380,44 @@ docling_opensearch/
 └── README.md
 ```
 
+## Troubleshooting
+
+### Container runtime not found
+
+If `./setup.sh --start-opensearch` or `npm run opensearch:up` says it cannot find a Compose-compatible runtime, install one of:
+
+- Docker Desktop
+- Rancher Desktop with Docker-compatible mode enabled
+- Podman Desktop with `podman compose` or `podman-compose`
+- Colima with Docker CLI support
+
+Then verify at least one of these works:
+
+```bash
+docker compose version
+docker-compose version
+podman compose version
+podman-compose --version
+```
+
+### OpenSearch is not ready yet
+
+After starting OpenSearch, wait 30 to 60 seconds before ingesting documents.
+
+Check the containers:
+
+```bash
+npm run opensearch:up
+```
+
+If you upgraded from an older OpenSearch version and the container fails, remove the old volume:
+
+```bash
+npm run opensearch:down
+```
+
+Then remove the volume with your container runtime if needed and start again.
+
 ### Missing sample PDFs
 
 ```bash
@@ -378,7 +431,7 @@ Requires the Python venv from `npm run setup` (ReportLab + Pillow).
 Use **Python 3.10 or newer**. Recreate the venv if packages fail to install:
 
 ```bash
-rm -rf .venv && npm run setup
+npm run venv:reset
 ```
 
 ### PDF preview is blank

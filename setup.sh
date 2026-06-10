@@ -6,6 +6,8 @@ cd "$ROOT_DIR"
 
 RESET_VENV=0
 START_OPENSEARCH=0
+OPENSEARCH_ONLY=0
+STOP_OPENSEARCH=0
 PYTHON_ONLY=0
 
 for arg in "$@"; do
@@ -19,6 +21,13 @@ for arg in "$@"; do
     --start-opensearch)
       START_OPENSEARCH=1
       ;;
+    --opensearch-only)
+      OPENSEARCH_ONLY=1
+      START_OPENSEARCH=1
+      ;;
+    --stop-opensearch)
+      STOP_OPENSEARCH=1
+      ;;
     -h|--help)
       cat <<'EOF'
 Usage: ./setup.sh [options]
@@ -26,7 +35,9 @@ Usage: ./setup.sh [options]
 Options:
   --reset-venv        Remove and recreate the Python virtual environment
   --python-only       Only prepare the Python virtual environment
-  --start-opensearch  Start OpenSearch with docker compose after setup
+  --start-opensearch  Start OpenSearch with a Compose-compatible runtime after setup
+  --opensearch-only   Only start OpenSearch, then exit
+  --stop-opensearch   Stop OpenSearch, then exit
   -h, --help          Show this help
 
 This script:
@@ -36,6 +47,7 @@ This script:
   4. Creates .venv and installs Python dependencies
   5. Installs frontend dependencies
   6. Generates sample PDFs
+  7. Optionally starts OpenSearch with Docker, Rancher Desktop, Podman, or Colima
 EOF
       exit 0
       ;;
@@ -100,6 +112,69 @@ ensure_node() {
     fi
   fi
 }
+
+detect_compose() {
+  if command -v docker >/dev/null 2>&1 && docker compose version >/dev/null 2>&1; then
+    COMPOSE_CMD=(docker compose)
+    return
+  fi
+
+  if command -v docker-compose >/dev/null 2>&1; then
+    COMPOSE_CMD=(docker-compose)
+    return
+  fi
+
+  if command -v podman >/dev/null 2>&1 && podman compose version >/dev/null 2>&1; then
+    COMPOSE_CMD=(podman compose)
+    return
+  fi
+
+  if command -v podman-compose >/dev/null 2>&1; then
+    COMPOSE_CMD=(podman-compose)
+    return
+  fi
+
+  cat >&2 <<'EOF'
+Could not find a Docker Compose compatible runtime.
+
+Install one of these, then rerun the command:
+  - Docker Desktop: https://www.docker.com/products/docker-desktop/
+  - Rancher Desktop: https://rancherdesktop.io/ (enable dockerd / Docker-compatible mode)
+  - Podman Desktop: https://podman-desktop.io/ plus podman-compose if needed
+  - Colima: https://github.com/abiosoft/colima with Docker CLI support
+
+After installing, verify one of these works:
+  docker compose version
+  docker-compose version
+  podman compose version
+  podman-compose --version
+EOF
+  exit 1
+}
+
+compose_up() {
+  detect_compose
+  echo "Using container runtime: ${COMPOSE_CMD[*]}"
+  "${COMPOSE_CMD[@]}" up -d
+}
+
+compose_down() {
+  detect_compose
+  echo "Using container runtime: ${COMPOSE_CMD[*]}"
+  "${COMPOSE_CMD[@]}" down
+}
+
+if [[ "$STOP_OPENSEARCH" == "1" ]]; then
+  log "Stopping OpenSearch"
+  compose_down
+  exit 0
+fi
+
+if [[ "$OPENSEARCH_ONLY" == "1" ]]; then
+  log "Starting OpenSearch"
+  compose_up
+  exit 0
+fi
 
 log "Checking required tools"
 need_cmd python3
@@ -173,8 +248,7 @@ fi
 
 if [[ "$START_OPENSEARCH" == "1" && "$PYTHON_ONLY" != "1" ]]; then
   log "Starting OpenSearch"
-  need_cmd docker
-  docker compose up -d
+  compose_up
 fi
 
 cat <<'EOF'
