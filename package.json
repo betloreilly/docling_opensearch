@@ -3,12 +3,13 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "setup": "python3 -m venv .venv && . .venv/bin/activate && pip install -r requirements.txt reportlab && cd frontend && npm install",
+    "setup": "bash setup.sh",
     "opensearch:up": "docker compose up -d",
     "opensearch:down": "docker compose down",
     "backend": "PYTHONPATH=. .venv/bin/uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000",
     "frontend": "cd frontend && npm run dev",
     "dev": "echo 'Run npm run opensearch:up, then npm run backend and npm run frontend in separate terminals'",
+    "venv:reset": "bash setup.sh --reset-venv --python-only",
     "sample-pdf": ".venv/bin/python scripts/generate_nexvalue_samples.py",
     "samples": ".venv/bin/python scripts/generate_nexvalue_samples.py"
   }

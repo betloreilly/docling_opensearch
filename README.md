@@ -105,6 +105,20 @@ This repo uses Docling SaaS for parsing. Do not install local Docling parsing mo
 
 ## Setup
 
+### Start from scratch checklist
+
+For a new machine, the order is:
+
+1. Create a Docling SaaS trial and copy your API key + service URL
+2. Clone this repo
+3. Run `./setup.sh`
+4. Edit `.env` with your Docling values
+5. Verify Docling connectivity
+6. Start OpenSearch with `npm run opensearch:up`
+7. Start the backend with `npm run backend`
+8. Start the frontend with `npm run frontend`
+9. Open `http://localhost:3000`
+
 ### 1. Create a Docling SaaS trial and get credentials
 
 Create a free trial from the [IBM Docling for IBM watsonx trial page](https://www.ibm.com/account/reg/us-en/signup?formid=urx-54322). After registration, open the IBM SaaS Console and confirm that **Docling for IBM watsonx** is active.
@@ -143,11 +157,30 @@ Keep the real values only in your local `.env`. Do not commit them.
 ```bash
 git clone <your-repo-url>
 cd docling_opensearch
-cp .env.example .env
-cp frontend/.env.local.example frontend/.env.local
 ```
 
-Edit `.env` with your Docling SaaS credentials:
+Run the setup script:
+
+```bash
+./setup.sh
+```
+
+The script:
+
+- Creates `.env` from `.env.example` if it does not exist
+- Creates `frontend/.env.local` from `frontend/.env.local.example` if it does not exist
+- Creates the Python virtual environment at `.venv`
+- Installs Python dependencies from `requirements.txt`
+- Installs frontend dependencies in `frontend/`
+- Regenerates the sample PDFs in `data/`
+
+You can also run the same setup through npm:
+
+```bash
+npm run setup
+```
+
+Edit `.env` with your Docling SaaS credentials after setup:
 
 ```env
 DOCLING_SERVICE_URL=https://your-docling-service-url
@@ -170,19 +203,28 @@ curl http://localhost:8000/api/docling/status
 
 That status endpoint calls your local backend, which checks Docling SaaS health for you. A healthy response confirms credentials. It does not test file upload.
 
-### 3. Install dependencies
+### 3. Manage the Python virtual environment
+
+The backend is a Python FastAPI app. It uses Docling SaaS, local embeddings, OpenSearch client libraries, and the sample PDF generator. This repo keeps those Python packages inside `.venv` so they do not affect your system Python or other projects.
+
+Useful commands:
 
 ```bash
-npm run setup
+.venv/bin/python --version
+.venv/bin/python -m pip show docling-slim
+.venv/bin/uvicorn --version
+npm run venv:reset
 ```
 
-This creates `.venv`, installs Python dependencies, and runs `npm install` in `frontend/`.
+Use `npm run venv:reset` if the Python environment gets into a bad state.
 
 Three sample PDFs are already included in `data/`. To regenerate them:
 
 ```bash
 npm run samples
 ```
+
+This uses `.venv/bin/python`, so run `./setup.sh` or `npm run setup` first.
 
 ### 4. Start OpenSearch
 
