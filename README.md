@@ -16,6 +16,23 @@ This demo shows how NexValue builds a stronger enterprise search foundation with
 
 The result is a **search-ready knowledge layer** that can also work as a **RAG-ready foundation** for future pipelines and internal AI assistants.
 
+## Why use Docling SaaS
+
+Most organizations have valuable information locked inside PDFs, scans, forms, tables, presentations, spreadsheets, and long policy documents. Basic text extraction can remove the context that makes those documents useful: headings, layout, table structure, reading order, page location, and relationships between sections.
+
+Docling SaaS helps turn those raw files into structured, AI-ready content that downstream search, analytics, and automation systems can use more reliably.
+
+Use Docling SaaS when you need to:
+
+- Preserve document meaning by keeping layout, reading order, tables, and page context
+- Extract content from scanned files and image-heavy documents with OCR
+- Convert complex files into AI-ready outputs such as Markdown, JSON, and HTML
+- Process multiple formats through one service instead of maintaining separate parsers
+- Keep provenance such as page numbers and bounding boxes for traceability
+- Move from one-off document conversion to repeatable API-based processing
+
+You can start with the [IBM Docling for IBM watsonx free trial](https://www.ibm.com/account/reg/us-en/signup?formid=urx-54322). The trial page describes free pages, AI-ready outputs, preserved document meaning, multi-format processing, and API access.
+
 ## Business problem
 
 | Challenge | Impact |
@@ -84,11 +101,44 @@ By running this demo locally you will:
 
 Embeddings are generated locally with `sentence-transformers/all-MiniLM-L6-v2`, so no embedding API key is required.
 
-> **SaaS-only parsing:**  
+This repo uses Docling SaaS for parsing. Do not install local Docling parsing models for this demo.
 
 ## Setup
 
-### 1. Clone and configure
+### 1. Create a Docling SaaS trial and get credentials
+
+Create a free trial from the [IBM Docling for IBM watsonx trial page](https://www.ibm.com/account/reg/us-en/signup?formid=urx-54322). After registration, open the IBM SaaS Console and confirm that **Docling for IBM watsonx** is active.
+
+The screenshots below show the flow in the Docling SaaS console. Use the values from your own trial account when you configure `.env`.
+
+![Docling trial subscription](docs/screenshots/trial1.png)
+
+Open the subscription, go to the **Instances** tab, and open your running instance.
+
+![Docling instance list](docs/screenshots/trial2.png)
+
+In the Docling workbench:
+
+1. Open **API keys**
+2. Create an API key
+3. Copy it immediately and save it somewhere safe. You will use it as `DOCLING_API_KEY`
+
+![Docling workbench](docs/screenshots/trial3.png)
+
+Then open **Integrate** and copy the **Service URL**. You will use it as `DOCLING_SERVICE_URL`.
+
+![Docling API integration](docs/screenshots/trial4.png)
+
+You need two values for this repo:
+
+```env
+DOCLING_SERVICE_URL=https://your-docling-service-url
+DOCLING_API_KEY=your-api-key
+```
+
+Keep the real values only in your local `.env`. Do not commit them.
+
+### 2. Clone and configure
 
 ```bash
 git clone <your-repo-url>
@@ -120,7 +170,7 @@ curl http://localhost:8000/api/docling/status
 
 That status endpoint calls your local backend, which checks Docling SaaS health for you. A healthy response confirms credentials. It does not test file upload.
 
-### 2. Install dependencies
+### 3. Install dependencies
 
 ```bash
 npm run setup
@@ -134,7 +184,7 @@ Three sample PDFs are already included in `data/`. To regenerate them:
 npm run samples
 ```
 
-### 3. Start OpenSearch
+### 4. Start OpenSearch
 
 ```bash
 npm run opensearch:up
@@ -256,7 +306,7 @@ docling_opensearch/
 ├── frontend/             # Next.js UI, ingest preview, hybrid search
 │   └── src/
 ├── data/                 # NexValue sample documents (+ .samples_manifest.json)
-├── docs/                 # README assets (architecture PNG, demo GIF)
+├── docs/                 # README assets (architecture PNG, demo GIF, setup screenshots)
 ├── scripts/              # Sample PDF generator
 ├── parsed/               # Cached Docling JSON (gitignored at runtime)
 ├── uploads/              # Uploaded files (gitignored at runtime)
