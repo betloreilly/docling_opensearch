@@ -111,13 +111,14 @@ For a new machine, the order is:
 
 1. Create a Docling SaaS trial and copy your API key + service URL
 2. Clone this repo
-3. Run `./setup.sh`
+3. Run `./setup.sh --start-opensearch`
 4. Edit `.env` with your Docling values
 5. Verify Docling connectivity
-6. Start OpenSearch with `npm run opensearch:up`
-7. Start the backend with `npm run backend`
-8. Start the frontend with `npm run frontend`
-9. Open `http://localhost:3000`
+6. Start the backend with `npm run backend`
+7. Start the frontend with `npm run frontend`
+8. Open `http://localhost:3000`
+
+If you run `./setup.sh` without `--start-opensearch`, start OpenSearch separately with `npm run opensearch:up`.
 
 ### 1. Create a Docling SaaS trial and get credentials
 
