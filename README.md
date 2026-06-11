@@ -156,7 +156,7 @@ Keep the real values only in your local `.env`. Do not commit them.
 ### 2. Clone and configure
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/betloreilly/docling_opensearch.git
 cd docling_opensearch
 ```
 
@@ -452,5 +452,6 @@ Leave `NEXT_PUBLIC_API_URL` unset so Next.js proxies `/api` to the backend (`BAC
 
 ## Learn more
 
+- [Tutorial: Parse policy PDFs with Docling SaaS and OpenSearch](docs/blog-from-docling-to-opensearch-enterprise-search1.md)
 - [Docling documentation](https://docling-project.github.io/docling/)
 - [OpenSearch hybrid search](https://docs.opensearch.org/latest/vector-search/ai-search/hybrid-search/index/)
