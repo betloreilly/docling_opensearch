@@ -6,7 +6,7 @@
     "setup": "bash setup.sh",
     "opensearch:up": "bash setup.sh --opensearch-only",
     "opensearch:down": "bash setup.sh --stop-opensearch",
-    "backend": "PYTHONPATH=. .venv/bin/uvicorn backend.main:app --reload --host 0.0.0.0 --port 8000",
+    "backend": "PYTHONPATH=. .venv/bin/uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000",
     "frontend": "cd frontend && npm run dev",
     "dev": "echo 'Run npm run opensearch:up, then npm run backend and npm run frontend in separate terminals'",
     "venv:reset": "bash setup.sh --reset-venv --python-only",

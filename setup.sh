@@ -9,6 +9,7 @@ START_OPENSEARCH=0
 OPENSEARCH_ONLY=0
 STOP_OPENSEARCH=0
 PYTHON_ONLY=0
+COMPOSE_CMD=()
 
 for arg in "$@"; do
   case "$arg" in
@@ -141,7 +142,6 @@ Install one of these, then rerun the command:
   - Docker Desktop: https://www.docker.com/products/docker-desktop/
   - Rancher Desktop: https://rancherdesktop.io/ (enable dockerd / Docker-compatible mode)
   - Podman Desktop: https://podman-desktop.io/ plus podman-compose if needed
-  - Colima: https://github.com/abiosoft/colima with Docker CLI support
 
 After installing, verify one of these works:
   docker compose version

@@ -4,6 +4,7 @@
 !.env.example
 !frontend/.env.local.example
 frontend/.env.local
+docs/blog-from-docling-to-opensearch-enterprise-search.md
 
 # Python
 .venv/
@@ -40,3 +41,6 @@ docs/*.drawio
 *.drawio
 docs/*.mp4
 docs/*.mov
+
+# Generated PDF export (regenerate with pandoc + Chrome headless, see docs/blog-pdf.css)
+docs/*.pdf
