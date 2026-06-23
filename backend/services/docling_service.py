@@ -6,9 +6,14 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+import httpx
+from docling.datamodel.base_models import ConversionStatus, OutputFormat
+from docling.datamodel.service.options import ConvertDocumentsOptions
+from docling.datamodel.service.responses import PresignedUrlConvertResponse
+from docling.datamodel.service.targets import PresignedUrlTarget
 from docling.service_client import DoclingServiceClient
 from docling.service_client.exceptions import ServiceError, UsageLimitExceededError
-from docling_core.types.doc import DocItemLabel
+from docling_core.types.doc import DocItemLabel, DoclingDocument
 
 from backend.config import (
     CHUNK_OVERLAP_WORDS,
@@ -64,6 +69,37 @@ def _assert_saas_only() -> None:
         pass
 
 
+def _load_document_from_presigned_result(
+    result: PresignedUrlConvertResponse,
+    source_name: str,
+) -> DoclingDocument:
+    if not result.documents:
+        raise RuntimeError("Docling SaaS returned no documents in the conversion result.")
+
+    doc_item = result.documents[0]
+    if doc_item.status not in {
+        ConversionStatus.SUCCESS,
+        ConversionStatus.PARTIAL_SUCCESS,
+    }:
+        errors = "; ".join(error.error_message for error in doc_item.errors)
+        message = errors or doc_item.status.value
+        raise RuntimeError(f"Docling SaaS conversion failed for {source_name}: {message}")
+
+    json_artifact = next(
+        (artifact for artifact in doc_item.artifacts if artifact.artifact_type == "json"),
+        None,
+    )
+    if json_artifact is None:
+        raise RuntimeError(
+            "Docling SaaS did not return a JSON artifact. "
+            "IBM Docling for watsonx uses presigned_url output; ensure JSON is enabled."
+        )
+
+    response = httpx.get(str(json_artifact.uri), timeout=120.0)
+    response.raise_for_status()
+    return DoclingDocument.model_validate_json(response.text)
+
+
 def _convert_via_saas(file_path: Path) -> Any:
     _assert_saas_only()
 
@@ -78,8 +114,20 @@ def _convert_via_saas(file_path: Path) -> Any:
 
     try:
         with DoclingServiceClient(url=DOCLING_SERVICE_URL, api_key=DOCLING_API_KEY) as client:
-            result = client.convert(source=file_path)
-        return result.document
+            options = ConvertDocumentsOptions(
+                to_formats=[OutputFormat.JSON, OutputFormat.MARKDOWN],
+            )
+            job = client.submit(
+                source=file_path,
+                target=PresignedUrlTarget(),
+                options=options,
+            )
+            result = job.result(timeout=300)
+            if not isinstance(result, PresignedUrlConvertResponse):
+                raise RuntimeError(
+                    "Unexpected Docling SaaS response type from presigned_url conversion."
+                )
+            return _load_document_from_presigned_result(result, file_path.name)
     except UsageLimitExceededError as exc:
         raise RuntimeError(
             f"Docling SaaS usage limit exceeded ({exc}). "
